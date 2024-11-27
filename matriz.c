@@ -1,15 +1,9 @@
+#include "fdf.h"
 #include "gnl/get_next_line.h"
 #include "libft/libft.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
-
-typedef struct s_matriz
-{
-	int	x;
-	int	y;
-	int	**mapa;
-}	t_matriz;
 
 int	count_x(char	*str)
 {
@@ -45,6 +39,20 @@ int	count_y(int	fd)
 	return (i);
 }
 
+void	free_matriz(t_matriz	*ptr)
+{
+	int	i;
+
+	i = 0;
+	while (ptr->mapa[i])
+	{
+		free(ptr->mapa[i]);
+		i++;
+	}
+	free(ptr->mapa);
+	free(ptr);
+}
+
 int	*mapa_line(char	*line, int x)
 {
 	char	**num;
@@ -63,6 +71,7 @@ int	*mapa_line(char	*line, int x)
 		i++;
 	}
 	free(num[i]);
+	free(num);
 	return (linem);
 }
 
@@ -82,44 +91,11 @@ void	creat_matriz(t_matriz *ptr, int fd)
 		if (ptr->mapa[i] == NULL)
 		{
 			free(line);
+			free_matriz(ptr);
 			return ;
 		}
 		free(line);
 		line = get_next_line(fd);
-		i++;
-	}
-}
-
-int	main()
-{
-	int	fd;
-	char	*line;
-	int	i;
-	int	k;
-	t_matriz	*ptr;
-
-	i = 0;
-	k = 0;
-	ptr  = malloc(sizeof(t_matriz));
-	fd = open("42.fdf", O_RDONLY);
-	if (fd < 0 || ptr == NULL)
-		return (-1);
-
-	line = get_next_line(fd);
-	ptr->x = count_x(line);
-	ptr->y = count_y(fd);
-	fd = open("42.fdf", O_RDONLY);
-	creat_matriz(ptr, fd);
-	
-	while (i < ptr->y)
-	{
-		while (k < ptr->x)
-		{
-			printf("%d ", ptr->mapa[i][k]);
-			k++;
-		}
-		printf("\n");
-		k = 0;
 		i++;
 	}
 }
